@@ -208,47 +208,46 @@ frames. A frame that found nothing therefore can't mask a frame that succeeded.
 
 ## How this was built
 
-I built this with AI assistance — Claude Code — and the `Co-Authored-By`
-trailers in the commit history are deliberate. Showing the real process seems
-more useful than presenting a scrubbed one.
+I built this with Claude Code, and I've kept the `Co-Authored-By` trailers in the
+history on purpose. I want to work in AI engineering, so hiding that I build
+things with models would be a strange place to start.
 
-The method was a loop: I set the constraints and the quality bar, the model
-proposed and implemented, I tested by ear and reported what I actually heard,
-and we kept or reverted on that basis. The standing rule was that any claim
-about audio quality or performance needed a measurement attached, or it didn't
-go into the code or these docs.
+How it worked in practice: I set the constraints and decided what counted as
+good, the model wrote most of the code, and I tested by ear and said what I
+actually heard. The one rule was that nothing about audio quality or performance
+got to stay unless there was a measurement behind it.
 
-That loop is the interesting part, because of what it caught:
+That rule is what made the project worth doing, because a lot of what we assumed
+turned out to be wrong.
 
-**A "hard constraint" nobody had verified.** This project was built on "zero
-added latency, non-negotiable". An `OfflineAudioContext` impulse test showed the
-chain was already at 10.05 ms — and that 6.0 ms of it came from
-`DynamicsCompressorNode`'s internal lookahead, the exact technique the
-constraint existed to forbid. The rule had been shaping design decisions while
-being false.
+The whole thing was built around "zero added latency, non-negotiable". Then we
+measured it. The chain was already at 10.05 ms, and 6.0 ms of that came from
+`DynamicsCompressorNode`'s internal lookahead — lookahead being the exact thing
+the rule existed to ban. That constraint had been driving design decisions the
+whole time and nobody had checked whether it was true.
 
-**An optimisation killed by its own measurement.** A dry bypass path was
-designed to cut CPU while the boost is off, and built. Measuring it showed the
-processed and dry paths sit 10 ms apart, so crossfading between them flanges
-audibly. It was deleted before it shipped, and the reason is recorded in
-`content.js` so it doesn't get rebuilt.
+The same thing happened with an optimisation I liked the sound of. We built a
+bypass path to cut CPU while the boost is off, measured it, and found the two
+paths sit 10 ms apart, so crossfading between them flanges. It was deleted before
+it shipped. The reason is written into `content.js` so I don't rebuild it in six
+months.
 
-**An optimisation that turned out to do nothing.** A filter added to the
-MutationObserver callback to skip childless nodes benchmarked identical to the
-naive version — 0.76 µs per node either way, because the cost is Chrome
-delivering mutation records, not the query. The comment now says so instead of
-claiming a benefit it doesn't have.
+One optimisation did nothing at all. A filter in the MutationObserver callback to
+skip childless nodes benchmarked identical to the version without it: 0.76 µs per
+node either way, because the cost is Chrome handing over mutation records, not the
+query. I kept the code and fixed the comment. A comment claiming a speedup that
+isn't there is worse than no comment.
 
-**A plausible architecture that was wrong for a subtle reason.** Registering the
-content script only for boosted origins would keep it off most of the web. But
-content script `matches` are tested against each *frame's* URL, not the tab's,
-so any player in a third-party iframe would silently stop restoring its boost —
-breaking the exact case this extension exists for.
+The one I'm most glad we caught: registering the content script only on sites
+you've boosted, so it stays off the rest of the web. That sounds obviously good.
+But content script `matches` are checked against each frame's URL, not the tab's,
+so a lecture player inside an iframe would have quietly stopped restoring its
+boost — which is the main thing I built this for.
 
-Two things were also rejected on judgment rather than measurement: suspending
-the `AudioContext` when media is idle (if you're not using it, you turn the
-booster off), and shipping `latencyHint: "playback"` for its CPU saving, which
-would have doubled output buffering to 20 ms.
+Two things I turned down on judgement instead of measurement: suspending the
+`AudioContext` when nothing is playing (if you're not using it you just turn the
+booster off), and `latencyHint: "playback"`, which saves CPU by doubling output
+buffering to 20 ms.
 
 ## Privacy
 
