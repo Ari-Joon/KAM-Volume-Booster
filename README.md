@@ -1,10 +1,21 @@
 # KAM Volume Booster
 
-A Chrome extension that boosts audio and video in any tab past the browser's
-100% ceiling, up to 400%, using the Web Audio API.
+**Hear quiet lectures clearly.** A Chrome extension that boosts audio and video
+in any tab up to 400% — four times past the browser's built-in ceiling — using
+the Web Audio API.
 
-Built for the case the native volume slider can't fix: quiet lecture recordings,
-badly mastered videos, conference calls mixed too low.
+Built for the recordings the native volume slider can't fix: a lecture captured
+from the back of the hall, a seminar with the mic too far away, a course
+platform that tops out below what you need. It's just as useful for badly
+mastered uploads and quiet conference calls, but quiet coursework is the case it
+was tuned for.
+
+Boosting naively just clips audio into crackle, which is the last thing you want
+when you're trying to make out speech. This runs a mastering-style chain instead
+— soft clipping, brick-wall limiting, and level-dependent processing that stays
+transparent at small boosts.
+
+![The popup boosting a tab to 250%](promo/shot-1-lectures.png)
 
 ---
 
@@ -22,6 +33,15 @@ No build step. The source is what ships.
 Click the toolbar icon, drag the slider (or type a percentage). The boost is
 remembered **per site** and comes back automatically on reload and after a
 browser restart. **Turn Off** returns the site to 100%.
+
+![Per-site levels persist across reloads and restarts](promo/shot-2-remembers.png)
+
+Embedded players are covered too. Lecture-capture and course platforms usually
+run the video in an iframe, and media inside Shadow DOM defeats most boosters —
+both work here. When a site genuinely can't be boosted, the popup says so
+instead of pretending.
+
+![Works inside embedded iframe and Shadow DOM players](promo/shot-3-embedded.png)
 
 ---
 

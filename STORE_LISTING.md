@@ -147,13 +147,24 @@ or transmit page content, and makes no network requests.
 
 ---
 
-## Assets still needed
+## Assets
 
-- [ ] **Screenshots** — 1280×800 or 640×400 PNG, at least one, up to five.
-      Suggested: the popup open over a video mid-boost; the popup showing a
-      remembered per-site level.
-- [ ] **Small promo tile** — 440×280 PNG (optional but improves placement).
+- [x] **Screenshots** — three 1280×800 PNGs in `promo/`, upload in this order:
+      1. `promo/shot-1-lectures.png` — the core pitch
+      2. `promo/shot-2-remembers.png` — per-site memory
+      3. `promo/shot-3-embedded.png` — iframe and Shadow DOM players
+
+      Regenerate them after any popup UI change; see `promo/README.md`.
 - [x] **Privacy policy URL** — published, see above.
+- [ ] **Small promo tile** — 440×280 PNG (optional, improves store placement).
+
+## Repository description
+
+For the GitHub repo's About field, kept consistent with the store copy:
+
+```
+Hear quiet lectures clearly. A Chrome extension that boosts any tab up to 400% with clean limiting instead of clipping.
+```
 
 ## Pre-submission checklist
 
