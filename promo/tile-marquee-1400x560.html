@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Marquee promo tile 1400x560</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        width: 1400px;
+        height: 560px;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #f4f6f8;
+        color: #14181d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 80px;
+        padding: 0 90px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(760px 460px at 84% 20%, rgba(255, 87, 34, 0.17), transparent 70%),
+          radial-gradient(680px 520px at 10% 86%, rgba(76, 175, 80, 0.19), transparent 70%);
+      }
+
+      .copy, .device { position: relative; }
+      .copy { width: 600px; flex: none; }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 24px;
+      }
+
+      .brand img { width: 42px; height: 42px; }
+
+      .brand span {
+        font-size: 17px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        color: #35404a;
+      }
+
+      h1 {
+        font-size: 58px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.06;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 21px;
+        line-height: 1.48;
+        color: #4a5560;
+      }
+
+      p .strong { color: #14181d; font-weight: 600; }
+
+      /* Faithful copy of the shipping popup, scaled for the tile. */
+      .device { flex: none; }
+
+      .shell {
+        zoom: 1.85;
+        width: 280px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(16, 24, 32, 0.08), 0 18px 40px -12px rgba(16, 24, 32, 0.34);
+        overflow: hidden;
+      }
+
+      .container {
+        width: 280px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .slider-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+      .icon { width: 20px; height: 20px; fill: #555; flex-shrink: 0; }
+
+      #slider {
+        -webkit-appearance: none;
+        appearance: none;
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(to right, #4caf50 0%, #cddc39 35%, #ffc107 60%, #ff5722 80%, #f44336 100%);
+        outline: none;
+      }
+
+      #slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #888;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      }
+
+      .percent {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        min-height: 18px;
+      }
+
+      #percent {
+        width: 48px;
+        padding: 2px 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        text-align: right;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: transparent;
+        font-family: inherit;
+      }
+
+      #percent::-webkit-outer-spin-button,
+      #percent::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+      .toggle {
+        width: 100%;
+        padding: 7px 0;
+        font-size: 13px;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        background: #f5f5f5;
+        color: #222;
+      }
+
+      .status {
+        font-size: 11px;
+        line-height: 1.3;
+        text-align: center;
+        color: #2e7d32;
+        min-height: 2.6em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="copy">
+      <div class="brand">
+        <img src="../icons/icon128.png" alt="" />
+        <span>KAM Volume Booster</span>
+      </div>
+      <h1>Hear quiet lectures clearly</h1>
+      <p>
+        Boost any Chrome tab up to <span class="strong">400%</span> — four times
+        past what the browser allows — without clipping it into crackle.
+      </p>
+    </div>
+
+    <div class="device">
+      <div class="shell">
+        <div class="container">
+          <div class="slider-row">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3z" />
+            </svg>
+            <input id="slider" type="range" min="100" max="400" step="10" value="250" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+          </div>
+          <div class="percent">
+            <input id="percent" type="number" min="100" max="400" step="10" value="250" /><span>%</span>
+          </div>
+          <button class="toggle">Turn Off</button>
+          <div class="status">Boosting to 250%</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

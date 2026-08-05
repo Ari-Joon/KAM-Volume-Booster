@@ -23,15 +23,27 @@ display produces 2560×1600 output.
 
 ## Frames
 
-| File | Angle | Used by |
+| File | Size | Slot |
 |---|---|---|
-| `shot-1-lectures` | The core pitch — quiet lecture recordings | Store, README hero |
-| `shot-2-remembers` | Per-site memory across reloads and restarts | Store, README |
-| `shot-3-embedded` | Iframe and Shadow DOM players, honest status | Store, README |
-| `signal-chain` | The audio graph with measured per-stage latency | README only |
+| `shot-1-lectures` | 1280×800 | Store screenshot 1, README hero |
+| `shot-2-remembers` | 1280×800 | Store screenshot 2, README |
+| `shot-3-embedded` | 1280×800 | Store screenshot 3, README |
+| `tile-small-440x280` | 440×280 | Store "Small promo tile" |
+| `tile-marquee-1400x560` | 1400×560 | Store "Marquee promo tile" |
+| `signal-chain` | 1280×400 | README only |
 
-`signal-chain` is 1280×400 rather than 1280×800 — it's a README banner, not a
-store screenshot, so don't upload it to the listing.
+`signal-chain` is a README banner, not a store asset — its dimensions match no
+store slot, so don't try to upload it.
+
+The store rejects PNGs with an alpha channel. Headless Chrome writes 24-bit RGB
+for an opaque page, which is what we want, but it's worth checking after any
+change:
+
+```bash
+python -c "print(open('promo/shot-1-lectures.png','rb').read()[25])"
+```
+
+`2` is RGB and fine. `6` is RGBA and will be rejected.
 
 ![Signal chain](signal-chain.png)
 

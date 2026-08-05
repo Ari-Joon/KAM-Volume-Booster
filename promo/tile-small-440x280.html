@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Small promo tile 440x280</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        width: 440px;
+        height: 280px;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #f4f6f8;
+        color: #14181d;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 30px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(320px 220px at 82% 14%, rgba(255, 87, 34, 0.20), transparent 70%),
+          radial-gradient(300px 240px at 10% 90%, rgba(76, 175, 80, 0.22), transparent 70%);
+      }
+
+      .inner { position: relative; }
+
+      img.icon {
+        width: 66px;
+        height: 66px;
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        font-size: 27px;
+        font-weight: 700;
+        letter-spacing: -0.022em;
+        line-height: 1.12;
+        margin-bottom: 9px;
+      }
+
+      p {
+        font-size: 14.5px;
+        line-height: 1.4;
+        color: #4a5560;
+        margin-bottom: 17px;
+      }
+
+      .bar {
+        width: 190px;
+        height: 8px;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: linear-gradient(to right, #4caf50 0%, #cddc39 35%, #ffc107 60%, #ff5722 80%, #f44336 100%);
+        position: relative;
+      }
+
+      .bar::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #888;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="inner">
+      <img class="icon" src="../icons/icon128.png" alt="" />
+      <h1>Hear quiet lectures clearly</h1>
+      <p>Boost any Chrome tab up to 400%</p>
+      <div class="bar"></div>
+    </div>
+  </body>
+</html>
