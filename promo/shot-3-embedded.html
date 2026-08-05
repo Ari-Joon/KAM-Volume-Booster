@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store screenshot 3 — embedded players</title>
+    <link rel="stylesheet" href="_shared.css" />
+  </head>
+  <body>
+    <div class="copy">
+      <div class="eyebrow">Where other boosters give up</div>
+      <h1>Works inside embedded players</h1>
+      <p class="sub">
+        Lecture capture and course platforms usually run the video in an iframe.
+        The boost reaches those too — and says so honestly when a site blocks it.
+      </p>
+      <ul class="points">
+        <li>Reaches players hosted in third-party iframes</li>
+        <li>Finds media inside Shadow DOM that other boosters miss</li>
+        <li>Tells you when a site can't be boosted, instead of pretending</li>
+      </ul>
+    </div>
+
+    <div class="device">
+      <div class="shell">
+        <div class="container">
+          <div class="slider-row">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3z" />
+            </svg>
+            <input id="slider" type="range" min="100" max="400" step="10" value="320" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+          </div>
+          <div class="percent">
+            <input id="percent" type="number" min="100" max="400" step="10" value="320" /><span class="percent-sign">%</span>
+          </div>
+          <button class="toggle">Turn Off</button>
+          <div class="status" style="color: #2e7d32">Boosting to 320%</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

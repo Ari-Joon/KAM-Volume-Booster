@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store screenshot 1 — lectures</title>
+    <link rel="stylesheet" href="_shared.css" />
+  </head>
+  <body>
+    <div class="copy">
+      <div class="eyebrow">Up to 400%</div>
+      <h1>Hear quiet lectures clearly</h1>
+      <p class="sub">
+        Recorded from the back of the hall, laptop already at 100%, still
+        straining to catch half of it. Push past the browser's ceiling.
+      </p>
+      <ul class="points">
+        <li>Four times louder than Chrome allows on its own</li>
+        <li>Clean limiting instead of clipping and crackle</li>
+        <li>Drag the slider or type an exact percentage</li>
+      </ul>
+    </div>
+
+    <div class="device">
+      <div class="shell">
+        <div class="container">
+          <div class="slider-row">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3z" />
+            </svg>
+            <input id="slider" type="range" min="100" max="400" step="10" value="250" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+          </div>
+          <div class="percent">
+            <input id="percent" type="number" min="100" max="400" step="10" value="250" /><span class="percent-sign">%</span>
+          </div>
+          <button class="toggle">Turn Off</button>
+          <div class="status" style="color: #2e7d32">Boosting to 250%</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
