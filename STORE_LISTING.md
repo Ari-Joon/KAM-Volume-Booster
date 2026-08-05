@@ -12,9 +12,9 @@ between versions. Nothing here is loaded by the extension.
 KAM Volume Booster
 ```
 
-**Short description** (132 char limit — this is 108)
+**Short description** (132 char limit — this is 110)
 ```
-Boost audio and video in any tab up to 400%, with clean limiting that prevents clipping and distortion.
+Hear quiet lectures and videos clearly. Boost any tab up to 400% with clean limiting that prevents distortion.
 ```
 
 **Category:** Accessibility (alternative: Productivity/Tools)
@@ -24,17 +24,31 @@ Boost audio and video in any tab up to 400%, with clean limiting that prevents c
 ### Detailed description
 
 ```
-Make quiet audio actually audible. KAM Volume Booster raises the volume of any
-audio or video in a Chrome tab up to 400% — well past the browser's built-in
-100% ceiling.
+Some lectures are just too quiet. The recording was made with a mic at the back
+of the hall, your laptop is already at 100%, and you're still straining to catch
+half of it.
 
-Built for the videos the normal volume slider can't fix: quiet lecture
-recordings, badly mastered uploads, conference calls mixed too low.
+KAM Volume Booster raises the volume of any audio or video in a Chrome tab up to
+400% — four times past the browser's built-in ceiling — so quiet educational
+content becomes properly audible.
 
-WHAT MAKES IT SOUND CLEAN
+BUILT FOR STUDYING
 
-Turning the gain up naively just clips the audio into crackle. This extension
-runs a proper mastering-style chain instead:
+• Works inside iframes, so embedded lecture-capture and course-platform players
+  are covered, not just the page around them
+• Works with Shadow DOM players that other boosters silently miss
+• Remembers your level per site, so a platform you use every week is already at
+  the right volume when you open it — through reloads and browser restarts
+• Set an exact percentage by typing it, not just by dragging
+
+It's just as useful for badly mastered uploads and conference calls mixed too
+low, but quiet coursework is the case it was built and tuned for.
+
+WHY IT DOESN'T JUST SOUND LOUDER AND WORSE
+
+Turning the gain up naively clips the audio into crackle, which is exactly what
+you don't want when you're trying to make out speech. This extension runs a
+proper mastering-style chain instead:
 
 • A soft-clip stage with 4x oversampling rounds peaks so overshoot saturates
   smoothly rather than distorting harshly.
@@ -46,15 +60,9 @@ sits idle and the chain is essentially a transparent wire — small increases
 sound untouched, not "processed". Only at high boost does the limiter
 progressively take control.
 
-FEATURES
-
-• Boost from 100% to 400%, by slider or by typing an exact percentage
-• Remembers your level per website, across reloads and browser restarts
-• Works inside iframes, so embedded players (lecture capture, course platforms)
-  are covered
-• Works with Shadow DOM players that other boosters miss
-• Smooth ramping — no clicks or zipper noise when you move the slider
-• Tells you honestly when a site can't be boosted, instead of pretending
+Volume changes ramp smoothly, so there are no clicks or zipper noise when you
+move the slider. And if a site can't be boosted, it tells you plainly instead of
+pretending it worked.
 
 PRIVACY
 
