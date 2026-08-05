@@ -186,6 +186,50 @@ frames. A frame that found nothing therefore can't mask a frame that succeeded.
 
 ---
 
+## How this was built
+
+I built this with AI assistance — Claude Code — and the `Co-Authored-By`
+trailers in the commit history are deliberate. Showing the real process seems
+more useful than presenting a scrubbed one.
+
+The method was a loop: I set the constraints and the quality bar, the model
+proposed and implemented, I tested by ear and reported what I actually heard,
+and we kept or reverted on that basis. The standing rule was that any claim
+about audio quality or performance needed a measurement attached, or it didn't
+go into the code or these docs.
+
+That loop is the interesting part, because of what it caught:
+
+**A "hard constraint" nobody had verified.** This project was built on "zero
+added latency, non-negotiable". An `OfflineAudioContext` impulse test showed the
+chain was already at 10.05 ms — and that 6.0 ms of it came from
+`DynamicsCompressorNode`'s internal lookahead, the exact technique the
+constraint existed to forbid. The rule had been shaping design decisions while
+being false.
+
+**An optimisation killed by its own measurement.** A dry bypass path was
+designed to cut CPU while the boost is off, and built. Measuring it showed the
+processed and dry paths sit 10 ms apart, so crossfading between them flanges
+audibly. It was deleted before it shipped, and the reason is recorded in
+`content.js` so it doesn't get rebuilt.
+
+**An optimisation that turned out to do nothing.** A filter added to the
+MutationObserver callback to skip childless nodes benchmarked identical to the
+naive version — 0.76 µs per node either way, because the cost is Chrome
+delivering mutation records, not the query. The comment now says so instead of
+claiming a benefit it doesn't have.
+
+**A plausible architecture that was wrong for a subtle reason.** Registering the
+content script only for boosted origins would keep it off most of the web. But
+content script `matches` are tested against each *frame's* URL, not the tab's,
+so any player in a third-party iframe would silently stop restoring its boost —
+breaking the exact case this extension exists for.
+
+Two things were also rejected on judgment rather than measurement: suspending
+the `AudioContext` when media is idle (if you're not using it, you turn the
+booster off), and shipping `latencyHint: "playback"` for its CPU saving, which
+would have doubled output buffering to 20 ms.
+
 ## Privacy
 
 No data collection, no analytics, no network requests. The only thing stored is

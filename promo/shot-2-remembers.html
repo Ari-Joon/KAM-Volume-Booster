@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store screenshot 2 — per-site memory</title>
+    <link rel="stylesheet" href="_shared.css" />
+  </head>
+  <body>
+    <div class="copy">
+      <div class="eyebrow">Set it once</div>
+      <h1>Every site remembers its level</h1>
+      <p class="sub">
+        The course platform you open every week is already at the right volume.
+        Levels survive reloads and browser restarts.
+      </p>
+      <ul class="points">
+        <li>Saved per website, not per tab</li>
+        <li>Comes back automatically — no reopening the popup</li>
+        <li>Stored locally on your computer, never uploaded</li>
+      </ul>
+    </div>
+
+    <div class="device">
+      <div class="shell">
+        <div class="container">
+          <div class="slider-row">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3z" />
+            </svg>
+            <input id="slider" type="range" min="100" max="400" step="10" value="180" />
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+          </div>
+          <div class="percent">
+            <input id="percent" type="number" min="100" max="400" step="10" value="180" /><span class="percent-sign">%</span>
+          </div>
+          <button class="toggle">Turn Off</button>
+          <div class="status" style="color: #2e7d32">Currently boosting to 180%</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
