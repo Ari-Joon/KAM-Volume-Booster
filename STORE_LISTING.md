@@ -158,12 +158,49 @@ or transmit page content, and makes no network requests.
 - [x] **Privacy policy URL** — published, see above.
 - [ ] **Small promo tile** — 440×280 PNG (optional, improves store placement).
 
-## Repository description
+## GitHub metadata
 
-For the GitHub repo's About field, kept consistent with the store copy:
+Kept here so it can't drift from the store copy. All of it has to be set through
+the GitHub web UI.
+
+**About field** (Settings gear on the repo home page)
+```
+Hear quiet lectures clearly. Chrome extension that boosts any tab up to 400% without clipping it into crackle. Built because half my lecture recordings were too quiet to follow.
+```
+
+**Topics** — same panel as the About field. These are what surface the repo in
+GitHub search:
+```
+chrome-extension  manifest-v3  web-audio-api  volume-booster  audio-processing
+javascript  accessibility  dsp  built-with-ai
+```
+
+**Release notes** for the `v1.2.0` tag (Releases → Draft a new release →
+choose the existing tag). Attach `kam-volume-booster-1.2.0.zip` so people can
+install without cloning:
 
 ```
-Hear quiet lectures clearly. A Chrome extension that boosts any tab up to 400% with clean limiting instead of clipping.
+First public release.
+
+Boosts any Chrome tab up to 400%. The point of it is quiet lecture recordings —
+mic at the back of the hall, laptop already maxed out, still can't follow it.
+
+What's in it:
+
+- A mastering-style chain instead of raw gain, so it gets louder without
+  clipping into crackle. Soft clipping, brick-wall limiting, and processing
+  that scales with the boost so small increases still sound untouched.
+- Levels saved per site, and they come back on reload and after a restart.
+- Works inside iframes, which is what most lecture-capture platforms use, and
+  finds media inside Shadow DOM that other boosters miss.
+- Tells you when a site can't be boosted instead of pretending it worked.
+
+Measured, not estimated: 10.05 ms of latency through the chain at 48 kHz and
+about 1% of one core while boosting. A tab you never boost builds no
+AudioContext at all. The numbers and how they were taken are in the README.
+
+Install: download the zip below, unzip it, then chrome://extensions →
+Developer mode → Load unpacked.
 ```
 
 ## Pre-submission checklist

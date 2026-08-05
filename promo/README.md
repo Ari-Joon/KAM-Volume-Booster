@@ -23,11 +23,17 @@ display produces 2560×1600 output.
 
 ## Frames
 
-| File | Angle |
-|---|---|
-| `shot-1-lectures` | The core pitch — quiet lecture recordings |
-| `shot-2-remembers` | Per-site memory across reloads and restarts |
-| `shot-3-embedded`  | Iframe and Shadow DOM players, honest status |
+| File | Angle | Used by |
+|---|---|---|
+| `shot-1-lectures` | The core pitch — quiet lecture recordings | Store, README hero |
+| `shot-2-remembers` | Per-site memory across reloads and restarts | Store, README |
+| `shot-3-embedded` | Iframe and Shadow DOM players, honest status | Store, README |
+| `signal-chain` | The audio graph with measured per-stage latency | README only |
+
+`signal-chain` is 1280×400 rather than 1280×800 — it's a README banner, not a
+store screenshot, so don't upload it to the listing.
+
+![Signal chain](signal-chain.png)
 
 ## Still missing
 

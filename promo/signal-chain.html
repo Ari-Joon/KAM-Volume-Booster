@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Signal chain diagram</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        width: 1280px;
+        height: 400px;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #f4f6f8;
+        color: #14181d;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 52px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(700px 380px at 78% 18%, rgba(255, 87, 34, 0.13), transparent 70%),
+          radial-gradient(620px 420px at 10% 86%, rgba(76, 175, 80, 0.15), transparent 70%);
+      }
+
+      .wrap { position: relative; }
+
+      h2 {
+        font-size: 25px;
+        letter-spacing: -0.015em;
+        margin-bottom: 5px;
+      }
+
+      .sub {
+        font-size: 15px;
+        color: #55616d;
+        margin-bottom: 30px;
+      }
+
+      .chain { display: flex; align-items: stretch; gap: 0; }
+
+      .node {
+        flex: 1;
+        background: #fff;
+        border: 1px solid #dfe5ea;
+        border-radius: 11px;
+        padding: 15px 12px 13px;
+        text-align: center;
+        box-shadow: 0 1px 2px rgba(16, 24, 32, 0.05), 0 8px 18px -12px rgba(16, 24, 32, 0.3);
+      }
+
+      .node .name {
+        font-size: 14.5px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        margin-bottom: 5px;
+      }
+
+      .node .detail {
+        font-size: 11.5px;
+        line-height: 1.35;
+        color: #6a7581;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .node.endpoint {
+        background: #eef2f5;
+        border-style: dashed;
+        box-shadow: none;
+      }
+
+      /* Stages that contribute latency get a coloured top edge. */
+      .node.costly { border-top: 3px solid #ff5722; }
+      .node.costly .lat {
+        display: inline-block;
+        margin-top: 7px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #c2410c;
+        background: rgba(255, 87, 34, 0.11);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .arrow {
+        flex: 0 0 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9aa5b1;
+        font-size: 17px;
+      }
+
+      .footnote {
+        margin-top: 26px;
+        display: flex;
+        align-items: baseline;
+        gap: 11px;
+        font-size: 13.5px;
+        color: #55616d;
+      }
+
+      .footnote strong {
+        color: #14181d;
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .swatch {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        background: #ff5722;
+        transform: translateY(-1px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>Signal chain</h2>
+      <div class="sub">
+        Every &lt;audio&gt; and &lt;video&gt; element on the page gets routed through this.
+      </div>
+
+      <div class="chain">
+        <div class="node endpoint">
+          <div class="name">Source</div>
+          <div class="detail">&lt;audio&gt; / &lt;video&gt;</div>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node">
+          <div class="name">Subsonic HP</div>
+          <div class="detail">25 Hz, Q 0.707<br />frees headroom</div>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node">
+          <div class="name">Gain</div>
+          <div class="detail">1.0&#215; &#8211; 4.0&#215;<br />10 ms ramp</div>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node costly">
+          <div class="name">Soft clip</div>
+          <div class="detail">tanh, 4&#215; oversampled<br />rounds peaks</div>
+          <span class="lat">+4.0 ms</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node costly">
+          <div class="name">Limiter</div>
+          <div class="detail">ratio 20, knee 3<br />threshold tracks boost</div>
+          <span class="lat">+6.0 ms</span>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node">
+          <div class="name">Makeup</div>
+          <div class="detail">1.0&#215; &#8211; 1.1&#215;<br />restores headroom</div>
+        </div>
+        <div class="arrow">&#8594;</div>
+
+        <div class="node endpoint">
+          <div class="name">Output</div>
+          <div class="detail">destination</div>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <span><span class="swatch"></span></span>
+        <span>
+          Measured, not estimated. <strong>10.05 ms</strong> total at 48 kHz.
+          4.0 ms of that is the oversampled shaper's resamplers and 6.0 ms is
+          <code>DynamicsCompressorNode</code>'s internal lookahead, which Chrome
+          gives you no way to turn off.
+        </span>
+      </div>
+    </div>
+  </body>
+</html>

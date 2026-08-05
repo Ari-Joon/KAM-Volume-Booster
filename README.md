@@ -1,19 +1,18 @@
 # KAM Volume Booster
 
 **Hear quiet lectures clearly.** A Chrome extension that boosts audio and video
-in any tab up to 400% — four times past the browser's built-in ceiling — using
-the Web Audio API.
+in any tab up to 400%, which is four times past what Chrome will do on its own.
 
-Built for the recordings the native volume slider can't fix: a lecture captured
-from the back of the hall, a seminar with the mic too far away, a course
-platform that tops out below what you need. It's just as useful for badly
-mastered uploads and quiet conference calls, but quiet coursework is the case it
-was tuned for.
+I built this because half my lecture recordings are too quiet to actually
+follow. Mic at the back of the hall, laptop already maxed out, still straining
+to catch every other word. It works just as well on badly mastered uploads and
+quiet calls, but quiet coursework is the thing I tuned it for.
 
-Boosting naively just clips audio into crackle, which is the last thing you want
-when you're trying to make out speech. This runs a mastering-style chain instead
-— soft clipping, brick-wall limiting, and level-dependent processing that stays
-transparent at small boosts.
+The catch with boosting audio is that if you just turn the gain up you clip it
+into crackle, which is the last thing you want when you're trying to make out
+speech. So this runs a proper mastering-style chain instead: soft clipping, a
+brick-wall limiter, and processing that scales with how hard you push it, so
+small boosts still sound untouched.
 
 ![The popup boosting a tab to 250%](promo/shot-1-lectures.png)
 
@@ -50,9 +49,7 @@ instead of pretending.
 `content.js` runs in every frame and routes each `<audio>` / `<video>` element
 through a Web Audio graph:
 
-```
-source → subsonic HP → gain → soft-clip → limiter → makeup → destination
-```
+![Signal chain: source, subsonic high-pass, gain, soft clip, limiter, makeup, output](promo/signal-chain.png)
 
 - **Subsonic high-pass** (25 Hz, Q 0.707) — strips inaudible rumble that would
   otherwise eat limiter headroom.
@@ -208,46 +205,46 @@ frames. A frame that found nothing therefore can't mask a frame that succeeded.
 
 ## How this was built
 
-I built this with Claude Code, and I've kept the `Co-Authored-By` trailers in the
-history on purpose. I want to work in AI engineering, so hiding that I build
-things with models would be a strange place to start.
+I built this with Claude Code and I've left the `Co-Authored-By` trailers in the
+commit history on purpose. I want to work in AI engineering, so hiding that I
+build things with models would be a weird place to start.
 
-How it worked in practice: I set the constraints and decided what counted as
-good, the model wrote most of the code, and I tested by ear and said what I
-actually heard. The one rule was that nothing about audio quality or performance
-got to stay unless there was a measurement behind it.
+How it actually worked: I set the constraints and decided what counted as good
+enough, the model wrote most of the code, and I tested everything by ear and told
+it what I was really hearing. The one rule was that nothing about audio quality
+or performance stayed in unless there was a number behind it.
 
-That rule is what made the project worth doing, because a lot of what we assumed
-turned out to be wrong.
+That rule is the reason this was worth doing, because a lot of what we both
+assumed turned out to be wrong.
 
-The whole thing was built around "zero added latency, non-negotiable". Then we
-measured it. The chain was already at 10.05 ms, and 6.0 ms of that came from
-`DynamicsCompressorNode`'s internal lookahead — lookahead being the exact thing
-the rule existed to ban. That constraint had been driving design decisions the
-whole time and nobody had checked whether it was true.
+The whole project was built on "zero added latency, non-negotiable". Then we
+actually measured it. The chain was already sitting at 10.05 ms, and 6.0 ms of
+that was `DynamicsCompressorNode` doing its own internal lookahead, which is the
+exact thing the rule existed to ban. So the constraint had been driving design
+decisions the whole time and nobody had ever checked it was true.
 
-The same thing happened with an optimisation I liked the sound of. We built a
-bypass path to cut CPU while the boost is off, measured it, and found the two
-paths sit 10 ms apart, so crossfading between them flanges. It was deleted before
-it shipped. The reason is written into `content.js` so I don't rebuild it in six
-months.
+Same thing happened with an optimisation I was sold on. We built a bypass path to
+save CPU while the boost is off, measured it, and the two paths turned out to be
+10 ms apart, so crossfading between them flanges. It got deleted before it
+shipped. The reason is written into `content.js` so I don't just build it again
+in six months.
 
-One optimisation did nothing at all. A filter in the MutationObserver callback to
-skip childless nodes benchmarked identical to the version without it: 0.76 µs per
-node either way, because the cost is Chrome handing over mutation records, not the
-query. I kept the code and fixed the comment. A comment claiming a speedup that
-isn't there is worse than no comment.
+One optimisation did nothing at all. A filter in the MutationObserver callback
+that skips childless nodes benchmarked exactly the same as the version without
+it, 0.76 µs per node either way, because the real cost is Chrome handing over the
+mutation records and not the query. I kept the code and rewrote the comment. A
+comment claiming a speedup that isn't there is worse than no comment.
 
-The one I'm most glad we caught: registering the content script only on sites
-you've boosted, so it stays off the rest of the web. That sounds obviously good.
-But content script `matches` are checked against each frame's URL, not the tab's,
-so a lecture player inside an iframe would have quietly stopped restoring its
-boost — which is the main thing I built this for.
+The one I'm most glad we caught was only registering the content script on sites
+you've actually boosted, so it stays off the rest of the web. That sounds
+obviously good. But content script `matches` get checked against each frame's URL
+and not the tab's, so a lecture player sitting inside an iframe would have
+quietly stopped restoring its boost, and that's the main thing I built this for.
 
-Two things I turned down on judgement instead of measurement: suspending the
-`AudioContext` when nothing is playing (if you're not using it you just turn the
-booster off), and `latencyHint: "playback"`, which saves CPU by doubling output
-buffering to 20 ms.
+Two things I turned down on judgement rather than measurement. Suspending the
+`AudioContext` when nothing is playing, because if you're not using it you just
+turn the booster off. And `latencyHint: "playback"`, which saves CPU by doubling
+output buffering to 20 ms, and that's not a trade I want on video.
 
 ## Privacy
 
