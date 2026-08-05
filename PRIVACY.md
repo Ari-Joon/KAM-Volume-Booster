@@ -42,4 +42,5 @@ individual sites by setting them back to 100%.
 
 ## Contact
 
-Open an issue on the project's GitHub repository.
+Open an issue at
+<https://github.com/Ari-Joon/KAM-Volume-Booster/issues>.

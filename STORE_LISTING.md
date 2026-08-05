@@ -62,7 +62,7 @@ No data collection. No analytics. No network requests. Nothing leaves your
 device. The only thing stored is a number per website — the boost level you
 picked — kept locally on your computer.
 
-Open source: <REPO URL>
+Open source: https://github.com/Ari-Joon/KAM-Volume-Booster
 
 KNOWN LIMITATION
 
@@ -86,7 +86,10 @@ beyond the browser's 100% limit.
 **Data usage:** tick *nothing*. The extension collects no user data.
 Certify all three compliance checkboxes.
 
-**Privacy policy URL:** the raw or Pages URL of `PRIVACY.md` in the repo.
+**Privacy policy URL**
+```
+https://github.com/Ari-Joon/KAM-Volume-Booster/blob/main/PRIVACY.md
+```
 
 ### Permission justifications
 
@@ -142,7 +145,7 @@ or transmit page content, and makes no network requests.
       Suggested: the popup open over a video mid-boost; the popup showing a
       remembered per-site level.
 - [ ] **Small promo tile** — 440×280 PNG (optional but improves placement).
-- [ ] **Privacy policy URL** — publish the repo first, then link `PRIVACY.md`.
+- [x] **Privacy policy URL** — published, see above.
 
 ## Pre-submission checklist
 
