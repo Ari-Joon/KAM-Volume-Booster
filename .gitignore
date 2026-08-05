@@ -1,0 +1,11 @@
+# Build output — the Web Store package is generated, not committed.
+*.zip
+dist/
+
+# Scratch / test harnesses
+_*.html
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini

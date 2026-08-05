@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Volume Booster</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="slider-row">
+        <!-- Low-volume speaker icon -->
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 9v6h4l5 5V4L7 9H3z" />
+        </svg>
+
+        <!-- min/max/step are set from config.js by popup.js so the ceiling has
+             exactly one definition. Don't reintroduce them here. -->
+        <input
+          id="slider"
+          type="range"
+          value="100"
+          aria-label="Volume boost percentage"
+        />
+
+        <!-- High-volume speaker icon -->
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+          />
+        </svg>
+      </div>
+
+      <div class="percent">
+        <input
+          id="percent"
+          type="number"
+          value="100"
+          placeholder="—"
+          aria-label="Volume boost percentage"
+        /><span class="percent-sign">%</span>
+      </div>
+
+      <button id="toggle" class="toggle">Turn Off</button>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
