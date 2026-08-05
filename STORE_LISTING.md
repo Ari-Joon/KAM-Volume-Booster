@@ -101,49 +101,77 @@ https://github.com/Ari-Joon/KAM-Volume-Booster/blob/main/PRIVACY.md
 
 ### Permission justifications
 
-These are the usual rejection points — keep them specific.
-
-**`storage`**
-```
-Stores one number per website: the boost percentage the user selected. This is
-what lets a site keep its preferred volume after a reload or browser restart.
-Stored locally via chrome.storage.local. No other data is stored.
-```
+One field each, 1,000 character limit. These are the usual rejection points, so
+keep them specific — vague justifications get bounced more often than broad
+permissions do.
 
 **`activeTab`**
 ```
-Applies the volume boost to the tab the user is currently viewing when they
-interact with the extension's popup.
+activeTab is used to apply the volume boost to the tab the user is currently
+viewing, at the moment they interact with the extension's popup. Without it the
+extension cannot act on the page the user is looking at when they move the
+volume slider.
 ```
 
 **`scripting`**
 ```
-Injects the audio-processing content script into the current tab so the Web
-Audio graph can be attached to that page's audio and video elements. Injection
-targets all frames because media players are frequently hosted in an iframe.
+chrome.scripting.executeScript injects the audio-processing content script into
+the current tab so the Web Audio graph can be attached to that page's <audio>
+and <video> elements.
+
+This is needed for tabs that were already open before the extension was
+installed or updated, where the declared content script has not run. Injection
+targets all frames because media players are frequently hosted inside an iframe.
+```
+
+**`storage`**
+```
+chrome.storage.local stores a single number per website: the boost percentage
+the user selected for that origin (for example, 250 for youtube.com). This is
+what allows a site to keep its preferred volume after a page reload or a browser
+restart. Setting a site back to 100% deletes its entry.
+
+No other data is stored, and nothing is transmitted anywhere.
 ```
 
 **`tabs`**
 ```
-Reads the active tab's ID and URL for two purposes: to identify which tab the
-popup is controlling, and to recognise pages where boosting is impossible
-(chrome:// pages, the Chrome Web Store) so the popup can show "Unavailable
-here" instead of failing silently. Tab URLs are used only to derive the origin
-under which the user's chosen boost level is saved. Browsing history is never
-recorded or transmitted.
+The tabs permission is used to read the active tab's ID and URL for two
+purposes.
+
+First, to identify which tab the popup is controlling, and to derive the origin
+under which the user's chosen boost level is saved.
+
+Second, to recognise pages where boosting is impossible (chrome:// pages, the
+Chrome Web Store, view-source:) so the popup can display "Unavailable here"
+rather than appearing to work and then failing silently.
+
+Tab URLs are never recorded, transmitted, or used to build any browsing history.
 ```
 
-**`host_permissions: <all_urls>`**
+**Host permission (`<all_urls>`)**
 ```
-Audio and video can appear on any website, and the extension cannot know in
-advance which sites the user will want to boost. Broad host access is also
-required because media players are commonly embedded in third-party iframes
-(for example lecture-capture platforms), which need the same processing as the
-top-level page.
+Audio and video can appear on any website, and the extension has no way to know
+in advance which sites the user will want to boost, so the host permission
+cannot be narrowed to a fixed list.
 
-The extension only reads and modifies audio output. It does not read, collect,
-or transmit page content, and makes no network requests.
+Broad host access is also required because media players are very commonly
+embedded in third-party iframes. Lecture-capture and course platforms are the
+main use case for this extension, and the audio processing has to be applied
+inside that iframe's own frame, not just the top-level page.
+
+The extension only reads and modifies audio output through the Web Audio API. It
+does not read, collect, or transmit page content, and it makes no network
+requests of any kind.
 ```
+
+**Remote code: No.**
+
+Answer "No, I am not using remote code". Every script is bundled in the package
+(`config.js`, `content.js`, `background.js`, `popup.js`), all `<script>` tags in
+`popup.html` use local relative paths, and there is no `eval`, no `new
+Function`, no string-form `setTimeout`/`setInterval`, and no dynamic `import()`.
+Answering yes is inaccurate and triggers a deeper review for no reason.
 
 ---
 
