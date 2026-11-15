@@ -34,6 +34,12 @@ for (const input of [slider, percentInput]) {
 
 let tabId = null;
 
+/** URL of the active tab, for status messages that depend on the page type. */
+let pageUrl = "";
+
+/** Last level actually applied, so an invalid entry can be reverted to it. */
+let appliedPercent = MIN_PERCENT;
+
 /**
  * chrome.storage.local key for the active tab's origin, or null when the page
  * has no persistable origin (file://, etc). Null means "boost still works,
@@ -117,10 +123,10 @@ async function sendToTab(message) {
 /**
  * Sum the per-frame tallies into one picture of the tab.
  * @param {object[]} responses
- * @returns {{wired: number, cors: number, failed: number}}
+ * @returns {{wired: number, cors: number, failed: number, silenced: number}}
  */
 function summarize(responses) {
-  const total = { wired: 0, cors: 0, failed: 0 };
+  const total = { wired: 0, cors: 0, failed: 0, silenced: 0 };
   for (const res of responses) {
     if (!res?.found) continue;
     for (const key of Object.keys(total)) total[key] += res.found[key] || 0;
@@ -136,12 +142,30 @@ function summarize(responses) {
  * a pre-bound element needs a reload — both are worth saying out loud rather
  * than silently claiming success.
  *
+ * No replies at all means the popup never reached the page, which is different
+ * from reaching it and finding no media yet. 1.2.0 reported both as "waiting
+ * for audio", which was wrong for local files and pages the extension can't
+ * script.
+ *
  * @param {number} percent
- * @param {{wired: number, cors: number, failed: number}} total
+ * @param {object[]} responses  one reply per frame that answered
  * @returns {{msg: string, error: boolean}}
  */
-function statusFor(percent, total) {
+function statusFor(percent, responses) {
   if (percent <= MIN_PERCENT) return { msg: "Boost off.", error: false };
+  if (responses.length === 0) {
+    if (pageUrl.startsWith("file:")) {
+      return {
+        msg: "Turn on \"Allow access to file URLs\" for this extension to boost local files.",
+        error: true,
+      };
+    }
+    return { msg: "Couldn't reach this page, so it can't be boosted.", error: true };
+  }
+  const total = summarize(responses);
+  if (total.silenced) {
+    return { msg: "A video switched to a source that blocks the booster. Reload the page to hear it.", error: true };
+  }
   if (total.wired && (total.cors || total.failed)) {
     return { msg: `Boosting to ${percent}% · some media can't be boosted`, error: false };
   }
@@ -175,16 +199,33 @@ async function persist(percent) {
   }
 }
 
+/**
+ * Show the boost on the toolbar icon for this tab. The service worker sets it
+ * when a boosted site loads; this keeps it current when the user changes it.
+ * @param {number} percent
+ */
+async function updateBadge(percent) {
+  const { text, color } = KAM_VB.badgeFor(percent);
+  try {
+    if (color) await chrome.action.setBadgeBackgroundColor({ tabId, color });
+    await chrome.action.setBadgeText({ tabId, text });
+  } catch (_) {
+    // Badge is a convenience; never let it break applying the boost.
+  }
+}
+
 /** Apply a percent: update UI, push to tab, persist per-origin. */
 async function apply(percent) {
   percent = clamp(percent);
+  appliedPercent = percent;
   reflect(percent);
   if (!tabId) return;
 
   try {
     const responses = await sendToTab({ type: "SET_GAIN", value: percent / 100 });
     await persist(percent);
-    const { msg, error } = statusFor(percent, summarize(responses));
+    await updateBadge(percent);
+    const { msg, error } = statusFor(percent, responses);
     setStatus(msg, error);
   } catch (err) {
     setStatus(`Failed: ${err.message}`, true);
@@ -203,7 +244,15 @@ slider.addEventListener("change", () => {
 });
 
 percentInput.addEventListener("change", () => {
-  apply(clamp(Number(percentInput.value)));
+  // An empty or non-numeric entry reverts to the current level. 1.2.0 treated
+  // it as 100%, so clearing the field and clicking away turned the boost off.
+  const raw = percentInput.value.trim();
+  const value = Number(raw);
+  if (raw === "" || !Number.isFinite(value)) {
+    reflect(appliedPercent);
+    return;
+  }
+  apply(value);
 });
 
 percentInput.addEventListener("keydown", (e) => {
@@ -211,6 +260,7 @@ percentInput.addEventListener("keydown", (e) => {
 });
 
 toggleBtn.addEventListener("click", () => {
+  if (appliedPercent <= MIN_PERCENT) return; // already off; nothing to send
   apply(MIN_PERCENT);
 });
 
@@ -221,6 +271,7 @@ toggleBtn.addEventListener("click", () => {
   tabId = tab?.id;
 
   const url = tab?.url || "";
+  pageUrl = url;
   const restricted =
     /^(chrome|edge|brave|about|chrome-extension|view-source):/i.test(url) ||
     url.startsWith("https://chrome.google.com/webstore") ||
@@ -247,6 +298,7 @@ toggleBtn.addEventListener("click", () => {
     percent = stored[storageKey] ?? MIN_PERCENT;
   }
 
+  appliedPercent = percent;
   reflect(percent);
 
   if (percent <= MIN_PERCENT) {
@@ -258,6 +310,6 @@ toggleBtn.addEventListener("click", () => {
   // actually going rather than asserting it worked.
   setStatus(`Currently boosting to ${percent}%`);
   const responses = await sendToTab({ type: "GET_GAIN" });
-  const { msg, error } = statusFor(percent, summarize(responses));
+  const { msg, error } = statusFor(percent, responses);
   setStatus(msg, error);
 })();

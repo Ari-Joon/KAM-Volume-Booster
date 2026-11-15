@@ -36,10 +36,12 @@ BUILT FOR STUDYING
 
 • Works inside iframes, so embedded lecture-capture and course-platform players
   are covered, not just the page around them
-• Works with Shadow DOM players that other boosters silently miss
+• Finds media inside Shadow DOM players, including ones that load their video late
 • Remembers your level per site, so a platform you use every week is already at
   the right volume when you open it — through reloads and browser restarts
 • Set an exact percentage by typing it, not just by dragging
+• The toolbar icon shows each site's boost level, so you know a page will be
+  loud before it plays
 
 It's just as useful for badly mastered uploads and conference calls mixed too
 low, but quiet coursework is the case it was built and tuned for.
@@ -142,7 +144,12 @@ purposes.
 First, to identify which tab the popup is controlling, and to derive the origin
 under which the user's chosen boost level is saved.
 
-Second, to recognise pages where boosting is impossible (chrome:// pages, the
+Second, to show the boost level remembered for a site as a badge on the
+toolbar icon when a tab loads that site. Boosts restore automatically, so the
+badge is how the user knows a page is about to play louder than normal. This
+uses the tab's URL only to look up the saved level for its origin.
+
+Third, to recognise pages where boosting is impossible (chrome:// pages, the
 Chrome Web Store, view-source:) so the popup can display "Unavailable here"
 rather than appearing to work and then failing silently.
 
@@ -201,6 +208,39 @@ GitHub search:
 ```
 chrome-extension  manifest-v3  web-audio-api  volume-booster  audio-processing
 javascript  accessibility  dsp  built-with-ai
+```
+
+**Release notes** for the `v1.3.0` tag:
+
+```
+Fixes and one new feature. Same audio chain, same latency.
+
+Fixes:
+
+- "Turn Off" is actually off now. The soft clipper used to add about 3 dB to
+  quiet audio even at 100%. Below -3 dBFS it's now a straight wire: measured
+  +0.00 dB and 0.00% distortion.
+- Cleaner at high boost. Distortion at 400% on normal-level audio dropped from
+  8.9% to 2.9%, because loud peaks now round off instead of hitting a hard edge.
+- Players that render their video late inside Shadow DOM were being missed
+  entirely. They're found now, and moving the slider rescans for anything
+  that slipped past.
+- A video whose source was set after it appeared could go completely silent.
+  Media is now held back until its source is known.
+- Pressing Turn Off on a page you never boosted no longer starts audio
+  processing in every iframe on it.
+- The popup now says when it couldn't reach a page at all, instead of claiming
+  to wait for audio. Local files get a pointer to the setting that allows them.
+- Clearing the percentage box no longer quietly turns the boost off.
+
+New:
+
+- The toolbar icon shows the current boost as a badge, green to red as it gets
+  louder. Boosts restore themselves when you revisit a site, so this is how you
+  know a page is going to be loud before it plays.
+
+Install: download the zip below, unzip it, then chrome://extensions →
+Developer mode → Load unpacked.
 ```
 
 **Release notes** for the `v1.2.0` tag (Releases → Draft a new release →

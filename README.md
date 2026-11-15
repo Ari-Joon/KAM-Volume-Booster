@@ -11,8 +11,8 @@ quiet calls, but quiet coursework is the thing I tuned it for.
 The catch with boosting audio is that if you just turn the gain up you clip it
 into crackle, which is the last thing you want when you're trying to make out
 speech. So this runs a proper mastering-style chain instead: soft clipping, a
-brick-wall limiter, and processing that scales with how hard you push it, so
-small boosts still sound untouched.
+brick-wall limiter, and processing that scales with how hard you push it. At
+100% it measures as a straight wire for anything below -3 dBFS.
 
 ![The popup boosting a tab to 250%](promo/shot-1-lectures.png)
 
@@ -36,9 +36,13 @@ browser restart. **Turn Off** returns the site to 100%.
 ![Per-site levels persist across reloads and restarts](promo/shot-2-remembers.png)
 
 Embedded players are covered too. Lecture-capture and course platforms usually
-run the video in an iframe, and media inside Shadow DOM defeats most boosters —
-both work here. When a site genuinely can't be boosted, the popup says so
-instead of pretending.
+run the video in an iframe, and players built as web components hide their
+media inside Shadow DOM — both are handled. When a site genuinely can't be
+boosted, the popup says so instead of pretending.
+
+The toolbar icon shows the current boost as a badge, coloured green, amber or
+red as it gets louder. Boosts come back on their own when you revisit a site,
+so this is how you know a page is going to be loud before it plays.
 
 ![Works inside embedded iframe and Shadow DOM players](promo/shot-3-embedded.png)
 
@@ -53,9 +57,11 @@ through a Web Audio graph:
 
 - **Subsonic high-pass** (25 Hz, Q 0.707) — strips inaudible rumble that would
   otherwise eat limiter headroom.
-- **Gain** — the boost multiplier.
-- **Soft-clip WaveShaper** (tanh, 4× oversampled) — rounds peaks so overshoot
-  saturates smoothly instead of hard-clipping into crackle.
+- **Gain** — the boost multiplier, pre-scaled into the shaper's input range.
+- **Soft-clip WaveShaper** (soft knee at -3 dBFS, 4× oversampled) — a straight
+  wire below the knee, then a smooth shoulder up to full scale. The curve covers
+  the whole boosted range, so loud peaks round off instead of hitting the
+  WaveShaper's hard clamp at its edge.
 - **Limiter** (`DynamicsCompressor`, knee 3, ratio 20, 3 ms attack) — brick-wall
   peak control.
 - **Makeup gain** — restores headroom lost to limiting.
@@ -67,7 +73,7 @@ uniformly "processed" at every setting:
 
 | Boost | Limiter threshold | Makeup | Character |
 |---|---|---|---|
-| ~110–150% | ≈ 0 dBFS (idle) | 1.0× | near-transparent wire |
+| 100–150% | ≈ 0 dBFS (idle) | 1.0× | transparent below -3 dBFS (measured: +0.00 dB, 0.00% THD) |
 | 400% | −2 dB | 1.1× | limiter progressively in control |
 
 All parameters ramp on a 10 ms time constant — below perception, but enough to
@@ -75,14 +81,21 @@ prevent zipper noise when the slider is dragged or jumped.
 
 ### Finding the media
 
-Three mechanisms, because no one of them is sufficient:
+Several mechanisms, because no one of them is sufficient. What each one actually
+reaches was measured, not assumed:
 
-1. **MutationObserver** — elements added after load (SPA navigation).
-2. **Recursive scan** — descends into open Shadow DOM roots. Runs once per frame;
-   the observer covers everything after.
-3. **Capture-phase `play` listener** using `event.composedPath()[0]` — catches
-   media inside custom web components that `querySelectorAll` can't reach. This
-   is what makes Shadow-DOM-heavy players work.
+1. **A scan** of the whole document, descending into open shadow roots. Runs
+   when a boost is armed, and again whenever you move the slider.
+2. **A MutationObserver on the document and on every open shadow root the scan
+   finds.** An observer never sees inside a shadow root it wasn't attached to,
+   so each root gets its own `observe()` call. This is what catches players
+   that render their `<video>` later.
+3. **A `loadstart` listener on each element.** Wires media whose source wasn't
+   known when it was found, and notices when a source changes.
+
+Media events don't cross shadow boundaries, so a document-level `play` listener
+— which 1.2.0 credited with Shadow DOM support — never fires for shadow-DOM
+media at all. It's kept only as a light-DOM backstop.
 
 ---
 
@@ -145,6 +158,20 @@ injection into `chrome-extension://` pages belonging to other extensions.
 **Restricted pages.** `chrome://`, `about:`, `view-source:` and the Web Store are
 off-limits to all extensions; the popup says so instead of failing silently.
 
+**Closed shadow roots can't be reached.** A web component that uses a closed
+shadow root keeps its media invisible to every extension.
+
+**Some late-loading web components need a nudge.** If a component's script
+loads after the page and attaches its shadow root to an element that's already
+there, nothing observable changes in the page. Moving the slider rescans and
+finds it.
+
+**A source switch after wiring can't be undone.** If a boosted video later
+switches to a cross-origin source, the browser silences it and the routing
+can't be reversed. The popup reports it and a reload fixes it. Media whose
+source isn't known yet is held back until it is, which avoids this in the
+common case.
+
 ---
 
 ## Approaches deliberately rejected
@@ -178,7 +205,7 @@ Recorded so they don't get re-litigated:
 | `manifest.json` | MV3 manifest |
 | `config.js` | Single source of truth for the boost ceiling and storage keys; loaded by all three contexts |
 | `content.js` | Audio processing and element discovery |
-| `background.js` | One listener: resolves a subframe's tab origin when the frame can't |
+| `background.js` | Keeps the toolbar badge in step on page load; resolves a sandboxed frame's tab origin |
 | `popup.*` | UI |
 
 **Shared config.** `config.js` is loaded by the popup (`<script>`), the content
@@ -194,12 +221,20 @@ site ever visited.
 `document_start` rather than the worker pushing on `tabs.onUpdated` — no frame
 enumeration, no race against script readiness, and iframes created later ask on
 their own behalf. Frames resolve the tab's origin themselves via
-`location.ancestorOrigins`, so the service worker doesn't start at all on a
-normal page load; it's a fallback for sandboxed frames with an opaque origin.
+`location.ancestorOrigins` and read storage directly; the worker answers only
+for sandboxed frames with an opaque origin.
+
+**The badge costs a worker wake per page load.** 1.2.0 kept the service worker
+asleep on normal page loads. 1.3.0 wakes it on each one to set the badge,
+because Chrome keeps a per-tab badge across navigations and something has to
+clear it when you leave a boosted site. A wake is a few milliseconds; the
+trade buys a visible warning that a page is about to be loud.
 
 **Honest status reporting.** Each frame returns raw tallies
-(`{wired, cors, failed}`) rather than a verdict, and the popup sums them across
-frames. A frame that found nothing therefore can't mask a frame that succeeded.
+(`{wired, cors, failed, silenced}`) rather than a verdict, and the popup sums
+them across frames. A frame that found nothing therefore can't mask a frame that
+succeeded, and a popup that reached no frames at all says so rather than
+claiming to wait for audio.
 
 ---
 
@@ -245,6 +280,15 @@ Two things I turned down on judgement rather than measurement. Suspending the
 `AudioContext` when nothing is playing, because if you're not using it you just
 turn the booster off. And `latencyHint: "playback"`, which saves CPU by doubling
 output buffering to 20 ms, and that's not a trade I want on video.
+
+Then a review for 1.3.0 caught two claims we'd written ourselves. The README
+said small boosts sound untouched, but the soft clipper was adding 3.2 dB to
+quiet audio even at 100%, so "Turn Off" wasn't really off. And the code said a
+`play` listener was what made Shadow DOM players work. Measured, it never fires
+for them at all, and players that render their video late were being missed
+completely. Both are fixed and both have numbers now. Same lesson as the latency
+one: if it isn't measured it's a guess, including when you're the one who wrote
+it.
 
 ## Privacy
 
