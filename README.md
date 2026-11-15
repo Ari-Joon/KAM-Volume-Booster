@@ -207,6 +207,7 @@ Recorded so they don't get re-litigated:
 | `content.js` | Audio processing and element discovery |
 | `background.js` | Keeps the toolbar badge in step on page load; resolves a sandboxed frame's tab origin |
 | `popup.*` | UI |
+| `tools/ab-compare.html` | A/B listening test of the 1.2.0 and 1.3.0 audio chains, with built-in measurements. Open it directly in Chrome; it isn't part of the extension package. |
 
 **Shared config.** `config.js` is loaded by the popup (`<script>`), the content
 script (manifest, before `content.js`) and the worker (`importScripts`). The

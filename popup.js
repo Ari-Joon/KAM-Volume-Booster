@@ -152,7 +152,11 @@ function summarize(responses) {
  * @returns {{msg: string, error: boolean}}
  */
 function statusFor(percent, responses) {
-  if (percent <= MIN_PERCENT) return { msg: "Boost off.", error: false };
+  // The status line only says what the controls above it can't: whether audio
+  // was actually found, and what went wrong if not. The level is already in
+  // the number box and on/off is already on the button, so it never repeats
+  // either.
+  if (percent <= MIN_PERCENT) return { msg: "", error: false };
   if (responses.length === 0) {
     if (pageUrl.startsWith("file:")) {
       return {
@@ -164,21 +168,21 @@ function statusFor(percent, responses) {
   }
   const total = summarize(responses);
   if (total.silenced) {
-    return { msg: "A video switched to a source that blocks the booster. Reload the page to hear it.", error: true };
+    return { msg: "A video switched to a source that blocks boosting. Reload the page to hear it.", error: true };
   }
   if (total.wired && (total.cors || total.failed)) {
-    return { msg: `Boosting to ${percent}% · some media can't be boosted`, error: false };
+    return { msg: "Some audio on this page can't be boosted.", error: false };
   }
-  if (total.wired) return { msg: `Boosting to ${percent}%`, error: false };
+  if (total.wired) return { msg: "Audio found and boosted.", error: false };
   if (total.cors) {
-    return { msg: "This site blocks boosting (CORS restriction).", error: true };
+    return { msg: "This site's player blocks boosting, so it plays at normal volume.", error: true };
   }
   if (total.failed) {
     return { msg: "Reload the page to boost this audio.", error: true };
   }
   // Nothing found yet. The boost is armed and will apply as soon as media
   // appears, so this is a wait, not a failure.
-  return { msg: `Boosting to ${percent}% · waiting for audio`, error: false };
+  return { msg: "No audio yet. Boost applies once it plays.", error: false };
 }
 
 /**
@@ -285,7 +289,8 @@ toggleBtn.addEventListener("click", () => {
     percentInput.disabled = true;
     toggleBtn.disabled = true;
     toggleBtn.textContent = "Unavailable here";
-    setStatus("Cannot boost this page.", true);
+    // The button already says it's unavailable; say why instead.
+    setStatus("Chrome doesn't allow extensions on this page.", true);
     return;
   }
 
@@ -301,14 +306,11 @@ toggleBtn.addEventListener("click", () => {
   appliedPercent = percent;
   reflect(percent);
 
-  if (percent <= MIN_PERCENT) {
-    setStatus("Ready.");
-    return;
-  }
+  // Off: the "Boost Off" button already says so, so the status line stays empty.
+  if (percent <= MIN_PERCENT) return;
 
   // A boost is already running from a previous session. Ask the frames how it's
   // actually going rather than asserting it worked.
-  setStatus(`Currently boosting to ${percent}%`);
   const responses = await sendToTab({ type: "GET_GAIN" });
   const { msg, error } = statusFor(percent, responses);
   setStatus(msg, error);

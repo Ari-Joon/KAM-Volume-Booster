@@ -232,6 +232,9 @@ Fixes:
 - The popup now says when it couldn't reach a page at all, instead of claiming
   to wait for audio. Local files get a pointer to the setting that allows them.
 - Clearing the percentage box no longer quietly turns the boost off.
+- The status line under the controls no longer repeats the level or the on/off
+  state already shown above it. It only reports what you can't see: whether
+  audio was found, and what to do if something blocked it.
 
 New:
 
