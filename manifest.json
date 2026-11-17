@@ -1,10 +1,17 @@
 {
   "manifest_version": 3,
   "name": "KAM Volume Booster",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Boost the volume of any audio or video playing in any Chrome tab or iframe beyond 100%.",
-  "permissions": ["activeTab", "scripting", "storage", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -24,10 +31,16 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["config.js", "content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "config.js",
+        "content.js"
+      ],
       "all_frames": true,
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "match_origin_as_fallback": true
     }
   ]
 }

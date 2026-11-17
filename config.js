@@ -67,4 +67,22 @@ globalThis.KAM_VB = globalThis.KAM_VB || {
       return null;
     }
   },
+
+  /**
+   * Toolbar badge for a boost level. Shared by the popup (after the user
+   * changes the level) and the service worker (when a boosted site loads), so
+   * both always render the same thing.
+   *
+   * The badge exists because boosts restore themselves silently on page load.
+   * Without it a site can come back at 400% with nothing on screen to say so.
+   * Colours follow the slider gradient so loud reads as loud.
+   *
+   * @param {number} percent
+   * @returns {{text: string, color: string|null}} empty text clears the badge
+   */
+  badgeFor(percent) {
+    if (!(percent > globalThis.KAM_VB.MIN_PERCENT)) return { text: "", color: null };
+    const color = percent <= 200 ? "#2e7d32" : percent <= 300 ? "#b26a00" : "#c62828";
+    return { text: `${percent}%`, color };
+  },
 };
