@@ -138,7 +138,7 @@ No other data is stored, and nothing is transmitted anywhere.
 
 **`tabs`**
 ```
-The tabs permission is used to read the active tab's ID and URL for two
+The tabs permission is used to read the active tab's ID and URL for three
 purposes.
 
 First, to identify which tab the popup is controlling, and to derive the origin
@@ -191,7 +191,9 @@ Answering yes is inaccurate and triggers a deeper review for no reason.
 
       Regenerate them after any popup UI change; see `promo/README.md`.
 - [x] **Privacy policy URL** — published, see above.
-- [ ] **Small promo tile** — 440×280 PNG (optional, improves store placement).
+- [x] **Promo tiles** — `promo/tile-small-440x280.png` and
+      `promo/tile-marquee-1400x560.png`. Regenerate the marquee after any popup
+      UI change; it shows the popup.
 
 ## GitHub metadata
 
